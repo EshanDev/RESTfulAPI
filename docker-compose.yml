@@ -1,0 +1,44 @@
+version: '3.8'
+services: 
+  
+  #Laravel App
+  app:
+    build: 
+      context: ./php
+      dockerfile: Dockerfile
+    image: self-training/laravel
+    container_name: app
+    restart: unless-stopped
+    tty: true
+    environment: 
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    working_dir: /var/www/RESTfulAPI
+    volumes: 
+      - ./:/var/www/RESTfulAPI
+    expose: 
+      - "9000"
+    networks: 
+      - api
+
+  #Nginx Service
+  webserver:
+    image: nginx:alpine
+    container_name: webserver
+    restart: unless-stopped
+    tty: true
+    volumes: 
+      - ./:/var/www/RESTfulAPI
+
+      - ./nginx/conf/nginx.conf:/etc/nginx/conf/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    
+    ports:
+      - "8081:80"
+    networks: 
+      - api
+
+
+networks: 
+  api:
+    driver: bridge
